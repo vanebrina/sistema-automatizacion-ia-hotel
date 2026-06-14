@@ -1,0 +1,464 @@
+{
+  "name": "Proyecto Int #1",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Buzon",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Nombre del Huesped"
+            },
+            {
+              "fieldLabel": "Reseña del Hotel",
+              "fieldType": "textarea"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        0,
+        0
+      ],
+      "id": "edba064b-29a5-4c01-abae-e52abbb75bb5",
+      "name": "On form submission",
+      "webhookId": "3ef8c9e8-e3fc-45ce-8528-f39ec6232d44"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json['Reseña del Hotel'] }}",
+        "options": {
+          "systemMessage": "You are a helpful as\"Eres un asistente de Inteligencia Artificial experto en hotelería y moderación de opiniones. Tu trabajo es analizar la reseña que te entrega el usuario. Debes identificar obligatoriamente tres cosas y responder únicamente en un formato estructurado JSON con las siguientes llaves:\n\n'sentimiento': Puede ser únicamente 'Positivo', 'Neutral' o 'Negativo'.\n\n'categoria': Clasifica la queja o comentario únicamente en una de estas: 'Habitaciones y Limpieza', 'Instalaciones y Servicios', 'Atención al Cliente' o 'Alimentos y Bebidas'.\n\n'respuesta_automatica': Redacta una respuesta muy amable, profesional y corta en español dirigida al huésped, agradeciendo si es positivo o pidiendo disculpas y ofreciendo revisar el caso si es negativo.\n\nNo agregues ningún texto de saludo o despedida fuera del JSON, solo entrega el objeto JSON limpio.\n\nIMPORTANTE: Tienes acceso a herramientas para consultar el sistema del hotel. Si usas una herramienta y encuentras los datos del huésped (como su número de habitación, noches restantes o estado VIP), DEBES usar esa información real de forma obligatoria en tu respuesta para calmar al cliente y demostrarle que ya estás revisando su caso específico. No le vuelvas a pedir datos que ya obtuviste gracias a la herramienta.\n\nREGLAS DE OPERACIÓN CON HERRAMIENTAS:\n1. Cuando un huésped envíe una queja, es OBLIGATORIO que uses primero la herramienta 'Code Tool' para buscar su nombre en la base de datos del hotel.\n2. Si los datos de la base de datos indican que el tipoCliente es 'vip' o 'frecuente', es OBLIGATORIO que uses inmediatamente la herramienta 'enviar_correo_compensacion'.\n3. En tu respuesta final en la hoja de cálculo, DEBES incluir explícitamente los datos encontrados (como el número de habitación y las noches restantes) para demostrarle al cliente que ya estás atendiendo su caso de forma personalizada.\""
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "c2488728-2268-4e7c-a888-2a28db0bd02c",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {
+          "temperature": 0.7
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        80,
+        208
+      ],
+      "id": "64b0eeab-9146-48f5-82c1-fb8e4931bf3d",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "flsZkgcYkRVU7kdw",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "={{ $('AI Agent').item.json.output }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "sentimiento",
+              "description": "El sentimiento de la reseña, puede ser Positivo, Neutral o Negativo."
+            },
+            {
+              "name": "categoria",
+              "description": "La categoría del hotel a la que pertenece el comentario."
+            },
+            {
+              "name": "respuesta_automatica",
+              "description": "La respuesta amable redactada para el cliente."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        624,
+        0
+      ],
+      "id": "4dc89e13-a28a-47c3-8a2c-b271d11dab40",
+      "name": "Information Extractor"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        624,
+        224
+      ],
+      "id": "669851ae-5261-49b7-8eaf-f86e388b8ea4",
+      "name": "Groq Chat Model1",
+      "credentials": {
+        "groqApi": {
+          "id": "flsZkgcYkRVU7kdw",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "42a0750c-afb4-4f5f-91af-4d86c16e64bb",
+              "leftValue": "={{ $json.Sentimiento }}",
+              "rightValue": "Positivo",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1472,
+        -16
+      ],
+      "id": "204f718b-3f33-4636-a4ed-4aad25b2bafb",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "chatId": "8824486555",
+        "text": "=🚨 ¡ALERTA RECLAMO CRÍTICO DE HUÉSPED! 🚨  \n🏨 Categoría afectada: {{ $('Information Extractor').item.json.output.categoria }}\n👩‍🦰 Huesped: {{ $('On form submission').item.json['Nombre del Huesped'] }}\n📝 Respuesta sugerida por la IA: {{ $('Information Extractor').item.json.output.respuesta_automatica }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1744,
+        64
+      ],
+      "id": "158171c1-3817-4a7d-bd9e-d2d6ed5a6bfe",
+      "name": "Send a text message",
+      "webhookId": "b8be5d5b-9f68-47f1-9ddb-6ecbb5bd6c2a",
+      "credentials": {
+        "telegramApi": {
+          "id": "zHpYbkkCodLFQhZM",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1L3XQXI_o8PJoRoNWGNVpR_-FTRuZGC-Eyl0B6XLlaAw",
+          "mode": "list",
+          "cachedResultName": "Historial de Reseñas - Hotel",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1L3XQXI_o8PJoRoNWGNVpR_-FTRuZGC-Eyl0B6XLlaAw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1L3XQXI_o8PJoRoNWGNVpR_-FTRuZGC-Eyl0B6XLlaAw/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Fecha": "={{ $('On form submission').item.json.submittedAt }}",
+            "Nombre": "={{ $('On form submission').item.json['Nombre del Huesped'] }}",
+            "Reseña": "={{ $('On form submission').item.json['Reseña del Hotel'] }}",
+            "Sentimiento": "={{ $('Information Extractor').item.json.output.sentimiento }}",
+            "Categoria": "={{ $('Information Extractor').item.json.output.categoria }}",
+            "Respuesta IA": "={{ $('Information Extractor').item.json.output.respuesta_automatica }}"
+          },
+          "matchingColumns": [
+            "Fecha"
+          ],
+          "schema": [
+            {
+              "id": "Fecha",
+              "displayName": "Fecha",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Nombre",
+              "displayName": "Nombre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Reseña",
+              "displayName": "Reseña",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Sentimiento",
+              "displayName": "Sentimiento",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Categoria",
+              "displayName": "Categoria",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Respuesta IA",
+              "displayName": "Respuesta IA",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1216,
+        -16
+      ],
+      "id": "7ac222b7-382f-4345-86c2-6331ab8c8368",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "nXKoFFwiM0XXLQp9",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1680,
+        -96
+      ],
+      "id": "757a4726-f56d-463e-90b7-5be4bfe7fcb4",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "description": "\"Útil para consultar la base de datos del hotel. Úsala cuando el huésped mencione su nombre o apellido para verificar si tiene una reserva activa, su número de habitación, los días de estancia o el estado de su pago.\"",
+        "jsCode": "// 1. Base de datos simulada del hotel\nconst baseDatosReservas = [\n  { \n    nombre: \"marta gomez\", \n    habitacion: \"204\", \n    noches: 3, \n    estadoPago: \"completado\", \n    tipoCliente: \"vip\" \n  },\n  { \n    nombre: \"carlos mendoza\", \n    habitacion: \"105\", \n    noches: 1, \n    estadoPago: \"completado\", \n    tipoCliente: \"regular\" \n  },\n  { \n    nombre: \"sebastian\", \n    habitacion: \"312\", \n    noches: 5, \n    estadoPago: \"pendiente\", \n    tipoCliente: \"frecuente\" \n  }\n];\n\n// 2. n8n nos pasa lo que la IA quiere buscar en la variable 'query'\nconst busqueda = $input.item.json.input\n  .toLowerCase()\n  .normalize(\"NFD\")\n  .replace(/[\\u0300-\\u036f]/g, \"\")\n  .trim();\n\n// 3. Buscar si el texto que envió la IA coincide con algún huésped\nconst resultado = baseDatosReservas.find(huesped => busqueda.includes(huesped.nombre) || huesped.nombre.includes(busqueda));\n\n// 4. Devolver la respuesta al agente\nif (resultado) {\n  return `Sistema del Hotel: Se encontró reserva activa para ${resultado.nombre.toUpperCase()}. Habitación: ${resultado.habitacion}, Estancia: ${resultado.noches} noches, Pago: ${resultado.estadoPago}, Tipo de Cliente: ${resultado.tipoCliente}.`;\n} else {\n  return `Sistema del Hotel: No se encontró ninguna reserva activa que coincida con el término \"${$input.item.json.input}\".`;\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "typeVersion": 1.3,
+      "position": [
+        464,
+        224
+      ],
+      "id": "b9bd4ef1-69dd-4539-8f95-71faea3be925",
+      "name": "Code Tool"
+    },
+    {
+      "parameters": {
+        "sendTo": "seider.sanin22135@ucaldas.edu.co",
+        "subject": "Compensación Formal y Disculpas - Dirección de Calidad",
+        "message": "=<div style=\"font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05);\">\n  \n  <!-- Encabezado de Alta Hotelería -->\n  <div style=\"background-color: #1a237e; padding: 25px; text-align: center;\">\n    <h2 style=\"color: #ffffff; margin: 0; font-size: 22px; letter-spacing: 1px; font-weight: 600;\">DIRECCIÓN DE GESTIÓN DE CALIDAD</h2>\n    <p style=\"color: #c5cae9; margin: 5px 0 0 0; font-size: 12px; text-transform: uppercase;\">Servicio de Atención Prioritaria VIP</p>\n  </div>\n\n  <!-- Cuerpo del Correo Dinámico -->\n  <div style=\"padding: 30px; background-color: #ffffff; color: #333333; line-height: 1.6; font-size: 15px;\">\n    \n    <!-- Aquí se inyecta la respuesta limpia de tu IA -->\n    <p style=\"margin-bottom: 25px; white-space: pre-line;\">\n      {{ $json.output.respuesta_automatica }}\n    </p>\n\n    <hr style=\"border: 0; border-top: 1px solid #eeeeee; margin: 20px 0;\">\n    \n    <p style=\"font-size: 13px; color: #777777; margin: 0; text-align: center;\">\n      Este es un canal automatizado de resolución preferencial. Por favor, no responda directamente a este mensaje.\n    </p>\n  </div>\n\n  <!-- Pie de página elegante -->\n  <div style=\"background-color: #f5f5f5; padding: 15px; text-align: center; border-top: 1px solid #e0e0e0; font-size: 12px; color: #9e9e9e;\">\n    &copy; 2026 Sistema de Experiencia del Huésped | Luxury Hotels Global\n  </div>\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        976,
+        0
+      ],
+      "id": "d846889d-fa9b-4eb9-ba02-97c80fe537d4",
+      "name": "Send a message",
+      "webhookId": "99e001ef-a383-4760-a5c1-956f5198afb8",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "SXEqxNMkkXw4u8NA",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "On form submission": [
+      {
+        "json": {
+          "Nombre del Huesped": "Marta Gómez",
+          "Reseña del Hotel": "Hola, soy Marta Gómez. Estoy muy molesta porque el aire acondicionado de mi habitación no funciona y hace un calor insoportable. Exijo saber cuántas noches me quedan aquí para ver si cancelo mi estadía hoy mismo.",
+          "submittedAt": "2026-06-13T20:02:56.304-05:00",
+          "formMode": "test"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "586bbc6e-c56d-4b4a-8222-46035ce2fd69",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d62c0c509f21c7a25d7709193c49563df4a87bdb89446f7065ee853fbb7e54ca"
+  },
+  "nodeGroups": [],
+  "id": "WNgROogltmQJ3Vbg",
+  "tags": []
+}
