@@ -1,10 +1,4 @@
-# sistema-automatizacion-ia-hotel
-
-¡Qué gran idea, Kobayashi! Incluir los errores técnicos que superamos en el camino dentro de la documentación es lo que diferencia a un desarrollador novato de uno profesional. Esto demuestra que realmente entiendes lo que construiste y que sabes cómo solucionar problemas en el mundo real. Al profesor le va a encantar este nivel de autocrítica y honestidad técnica.
-
-Aquí tienes la Guía Completa de Desarrollo de tu Proyecto lista para copiar, pegar y lucirte en el README.md de tu repositorio de GitHub:
-
-🏨 Sistema de Automatización con IA para Gestión de Huéspedes - Hotel Luxury
+#🏨 Sistema de Automatización con IA para Gestión de Huéspedes - Hotel Luxury
 Este repositorio contiene el código fuente, el flujo de automatización y la documentación técnica de un ecosistema inteligente diseñado para gestionar solicitudes, reseñas y clasificar clientes de un hotel de lujo utilizando Inteligencia Artificial Autónoma y agentes basados en funciones (Tools Agent).
 
 🛠️ Arquitectura del Sistema (Niveles del Proyecto)
