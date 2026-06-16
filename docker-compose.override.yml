@@ -14,6 +14,7 @@ services:
       - ./app:/app/app
       - ./scripts:/app/scripts
       - ./data:/app/data
+      - ./logs:/app/logs                       # bitácora de razonamiento visible en el host
       - hf_cache:/home/appuser/.hf_cache
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
