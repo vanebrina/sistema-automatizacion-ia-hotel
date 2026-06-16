@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ app_name }} · Buzón de Reseñas</title>
+  <style>
+    :root { --azul: #1a237e; --azul2: #3949ab; }
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #eef1f8; color: #222; }
+    .wrap { max-width: 640px; margin: 40px auto; padding: 0 16px; }
+    .card { background: #fff; border-radius: 12px; box-shadow: 0 6px 24px rgba(0,0,0,.08); overflow: hidden; }
+    header { background: linear-gradient(135deg, var(--azul), var(--azul2)); color: #fff; padding: 28px; text-align: center; }
+    header h1 { margin: 0; font-size: 22px; }
+    header p { margin: 6px 0 0; color: #c5cae9; font-size: 13px; }
+    form { padding: 28px; }
+    label { display: block; font-weight: 600; margin: 14px 0 6px; font-size: 14px; }
+    input, textarea { width: 100%; padding: 12px; border: 1px solid #cfd4e6; border-radius: 8px; font-size: 15px; font-family: inherit; }
+    textarea { min-height: 130px; resize: vertical; }
+    button { margin-top: 20px; width: 100%; padding: 14px; border: 0; border-radius: 8px; background: var(--azul); color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; }
+    button:hover { background: var(--azul2); }
+    .hint { font-size: 12px; color: #888; margin-top: 6px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <header>
+        <h1>🏨 Buzón de Reseñas — Hotel Luxury</h1>
+        <p>Análisis automático con IA (LangChain + Groq)</p>
+      </header>
+      <form action="/reviews" method="post">
+        <label for="nombre_huesped">Nombre del Huésped</label>
+        <input id="nombre_huesped" name="nombre_huesped" required placeholder="Ej: Marta Gómez">
+        <label for="resena">Reseña del Hotel</label>
+        <textarea id="resena" name="resena" required placeholder="Escribe tu experiencia…"></textarea>
+        <p class="hint">Pruebas: "Marta Gómez" (VIP), "Sebastián" (frecuente), "Carlos Mendoza" (regular).</p>
+        <button type="submit">Enviar reseña</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

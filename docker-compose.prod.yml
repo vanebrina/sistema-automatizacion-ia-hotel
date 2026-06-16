@@ -1,0 +1,48 @@
+# =============================================================================
+#  Override de PRODUCCIÓN.
+#  Uso:  docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+#
+#  Diferencias clave vs. desarrollo:
+#   - Sin montaje de código fuente (la imagen es inmutable).
+#   - Varios workers de Uvicorn y reinicio automático.
+#   - AUTO_INIT desactivado: la siembra/ingesta la hace un servicio 'init' de un solo uso.
+#   - El puerto de Postgres NO se expone al host (solo red interna).
+# =============================================================================
+
+services:
+  db:
+    restart: unless-stopped
+
+  # Servicio efímero: prepara la BD (tablas + reservas + vectores) y termina.
+  init:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: hotel-app:latest
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-hotel}:${POSTGRES_PASSWORD:-hotel}@db:5432/${POSTGRES_DB:-hoteldb}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - hf_cache:/home/appuser/.hf_cache
+    command: sh -c "python -m scripts.seed_db && python -m scripts.ingest_policies"
+    restart: "no"
+
+  app:
+    image: hotel-app:latest
+    restart: unless-stopped
+    environment:
+      ENVIRONMENT: production
+      DEBUG: "false"
+      AUTO_INIT: "false"
+    # Anula los montajes de desarrollo (imagen inmutable).
+    volumes:
+      - hf_cache:/home/appuser/.hf_cache
+    depends_on:
+      db:
+        condition: service_healthy
+      init:
+        condition: service_completed_successfully
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 2

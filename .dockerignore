@@ -1,0 +1,35 @@
+# Control de versiones
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+env/
+
+# Secretos y entorno local
+.env
+.env.*
+!.env.example
+
+# Artefactos locales
+logs/
+*.log
+.hf_cache/
+models/
+data/cache/
+
+# Documentación / docker meta (no necesarios dentro de la imagen)
+*.md
+docker-compose*.yml
+.dockerignore
+Dockerfile
+
+# Tests (no se ejecutan dentro de la imagen de producción)
+tests/

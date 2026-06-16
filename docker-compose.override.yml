@@ -1,0 +1,33 @@
+# =============================================================================
+#  Override de DESARROLLO — se aplica automáticamente con `docker compose up`.
+#  Añade: hot-reload, montaje del código fuente, puerto de BD expuesto y Adminer.
+# =============================================================================
+
+services:
+  app:
+    environment:
+      ENVIRONMENT: development
+      DEBUG: "true"
+      AUTO_INIT: "true"
+    # Monta el código para recarga en caliente (no reconstruir en cada cambio).
+    volumes:
+      - ./app:/app/app
+      - ./scripts:/app/scripts
+      - ./data:/app/data
+      - hf_cache:/home/appuser/.hf_cache
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  db:
+    # Expone Postgres al host para inspección con un cliente local.
+    ports:
+      - "5432:5432"
+
+  # Cliente web ligero para explorar la base de datos en desarrollo.
+  adminer:
+    image: adminer:4
+    container_name: hotel_adminer
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db

@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+env/
+
+# Entorno / secretos
+.env
+.env.*
+!.env.example
+
+# Datos / logs generados
+logs/
+*.log
+data/cache/
+.cache/
+
+# Modelos de embeddings descargados (HuggingFace / fastembed)
+.hf_cache/
+models/
+
+# IDE / SO
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

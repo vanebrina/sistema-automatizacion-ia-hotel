@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Resultado del Análisis · Hotel Luxury</title>
+  <style>
+    :root { --azul: #1a237e; --azul2: #3949ab; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #eef1f8; color: #222; }
+    .wrap { max-width: 680px; margin: 40px auto; padding: 0 16px; }
+    .card { background: #fff; border-radius: 12px; box-shadow: 0 6px 24px rgba(0,0,0,.08); overflow: hidden; }
+    header { background: linear-gradient(135deg, var(--azul), var(--azul2)); color: #fff; padding: 24px 28px; }
+    header h1 { margin: 0; font-size: 20px; }
+    .body { padding: 24px 28px; }
+    .row { margin-bottom: 18px; }
+    .k { font-size: 12px; text-transform: uppercase; letter-spacing: .5px; color: #888; }
+    .v { font-size: 16px; margin-top: 3px; }
+    .badge { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: 13px; font-weight: 600; }
+    .Positivo { background: #e6f4ea; color: #1e7e34; }
+    .Neutral  { background: #fff4e5; color: #b26a00; }
+    .Negativo { background: #fdecea; color: #c0392b; }
+    .resp { background: #f6f8ff; border-left: 4px solid var(--azul2); padding: 16px; border-radius: 8px; white-space: pre-line; }
+    .grid { display: flex; gap: 10px; flex-wrap: wrap; }
+    .pill { background: #eef1f8; border-radius: 8px; padding: 8px 12px; font-size: 13px; }
+    .ok { color: #1e7e34; font-weight: 600; }
+    .no { color: #999; }
+    a.back { display: inline-block; margin-top: 22px; color: var(--azul2); text-decoration: none; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <header><h1>✅ Reseña procesada — Huésped: {{ r.nombre_huesped }}</h1></header>
+      <div class="body">
+        <div class="row">
+          <div class="k">Reseña original</div>
+          <div class="v">“{{ r.resena }}”</div>
+        </div>
+        <div class="row grid">
+          <div><div class="k">Sentimiento</div>
+            <div class="v"><span class="badge {{ r.analisis.sentimiento }}">{{ r.analisis.sentimiento }}</span></div></div>
+          <div><div class="k">Categoría</div><div class="v">{{ r.analisis.categoria }}</div></div>
+        </div>
+        <div class="row">
+          <div class="k">Respuesta automática de la IA</div>
+          <div class="resp">{{ r.analisis.respuesta_automatica }}</div>
+        </div>
+        {% if r.reserva %}
+        <div class="row">
+          <div class="k">Datos de la reserva (consultados por el agente)</div>
+          <div class="grid" style="margin-top:6px">
+            <span class="pill">🛏 Habitación {{ r.reserva.habitacion }}</span>
+            <span class="pill">🌙 {{ r.reserva.noches }} noches</span>
+            <span class="pill">💳 Pago: {{ r.reserva.estado_pago }}</span>
+            <span class="pill">⭐ {{ r.reserva.tipo_cliente }}</span>
+          </div>
+        </div>
+        {% endif %}
+        <div class="row grid">
+          <div class="pill">📧 Email compensación:
+            {% if r.email_compensacion_enviado %}<span class="ok">enviado</span>{% else %}<span class="no">no</span>{% endif %}</div>
+          <div class="pill">🚨 Alerta Telegram:
+            {% if r.alerta_telegram_enviada %}<span class="ok">enviada</span>{% else %}<span class="no">no</span>{% endif %}</div>
+          <div class="pill">🗄 Registro #{{ r.id_registro }}</div>
+        </div>
+        <a class="back" href="/">← Enviar otra reseña</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

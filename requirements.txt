@@ -1,0 +1,37 @@
+# =============================================================================
+#  Dependencias de producción — Sistema de Automatización IA Hotel (Nivel 2)
+#  Se usan rangos de versión compatibles (PEP 440) para builds reproducibles
+#  pero resilientes. Para fijar un lockfile exacto: `pip freeze > requirements.lock`
+# =============================================================================
+
+# --- API web ---------------------------------------------------------------
+fastapi>=0.115,<0.116
+uvicorn[standard]>=0.34,<0.35
+jinja2>=3.1,<4.0
+python-multipart>=0.0.18,<0.1        # parseo de formularios (form-data)
+
+# --- Configuración y validación --------------------------------------------
+pydantic>=2.9,<3.0
+pydantic-settings>=2.6,<3.0
+python-dotenv>=1.0,<2.0
+
+# --- LangChain (Nivel 2, >= 0.2 según requerimiento) ------------------------
+langchain>=0.3.14,<0.4
+langchain-core>=0.3.29,<0.4
+langchain-groq>=0.2.3,<0.3           # LLM: ChatGroq (llama-3.3-70b)
+langchain-community>=0.3.14,<0.4
+langchain-postgres>=0.0.12,<0.1      # Vector store PGVector (pgvector)
+langchain-text-splitters>=0.3,<0.4
+
+# --- Embeddings (RAG) -------------------------------------------------------
+langchain-huggingface>=0.1.2,<0.3
+sentence-transformers>=3.0,<6.0      # backend del proveedor 'huggingface'
+# fastembed>=0.4,<0.6                # opcional: proveedor 'fastembed' (ligero)
+
+# --- Base de datos ----------------------------------------------------------
+SQLAlchemy>=2.0,<2.1
+psycopg[binary]>=3.2,<4.0            # driver PostgreSQL (psycopg3)
+pgvector>=0.3,<0.4
+
+# --- Cliente HTTP (Telegram Bot API) ----------------------------------------
+httpx>=0.27,<0.29

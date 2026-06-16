@@ -1,0 +1,44 @@
+# =============================================================================
+#  Compose BASE — define los servicios comunes a desarrollo y producción.
+#  - Desarrollo:  docker compose up           (aplica docker-compose.override.yml)
+#  - Producción:  docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+# =============================================================================
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: hotel_db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-hotel}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-hotel}
+      POSTGRES_DB: ${POSTGRES_DB:-hoteldb}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-hotel} -d ${POSTGRES_DB:-hoteldb}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hotel_app
+    env_file: .env
+    environment:
+      # El host de la BD dentro de la red de Docker es el servicio 'db'.
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-hotel}:${POSTGRES_PASSWORD:-hotel}@db:5432/${POSTGRES_DB:-hoteldb}
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    volumes:
+      # Persiste el modelo de embeddings descargado entre reinicios.
+      - hf_cache:/home/appuser/.hf_cache
+
+volumes:
+  pgdata:
+  hf_cache:
